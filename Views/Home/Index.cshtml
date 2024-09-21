@@ -1,0 +1,92 @@
+﻿@model IEnumerable<student_study_planner.Models.StudentModel>
+
+@{
+    ViewData["Title"] = "Home Page";
+    var courseCounts = ViewBag.CourseCounts as List<dynamic>;
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Student List</h2>
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Course</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var student in Model)
+            {
+                <tr>
+                    <td>@student.FirstName</td>
+                    <td>@student.LastName</td>
+                    <td>@student.Course.CourseName</td>
+                    <td>
+                        <a class="btn btn-info btn-sm" href="@Url.Action("Details", "StudentModels", new { id = student.Id })">Details</a>
+                     </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <h2>Course Distribution</h2>
+    <canvas id="coursePieChart" width="400" height="400"></canvas>
+</div>
+
+@if (courseCounts == null || !courseCounts.Any())
+{
+    <p>No courses available to display.</p>
+}
+else
+{
+    <script>
+        const labels = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(courseCounts.Select(c => c.CourseName)));
+        const data = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(courseCounts.Select(c => c.Count)));
+    </script>
+}
+<script>
+    const ctx = document.getElementById('coursePieChart').getContext('2d');
+
+
+    const coursePieChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Courses',
+                data: data,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Courses Distribution'
+                }
+            }
+        }
+    });
+</script>
+</div>
